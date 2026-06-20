@@ -1,17 +1,20 @@
 {
   "name": "expo-notification-sandbox",
-  "main": "expo-router/entry",
   "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "type-check": "tsc --noEmit",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt .",
-    "format:check": "oxfmt --check ."
+    "format:check": "oxfmt --check .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.15.5",
@@ -42,10 +45,11 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.17",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
     "oxfmt": "^0.55.0",
     "oxlint": "^1.70.0",
     "oxlint-config-universe": "^0.0.3",
     "typescript": "~5.9.3"
-  },
-  "private": true
+  }
 }
