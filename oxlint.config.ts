@@ -18,12 +18,5 @@ export default defineConfig({
     'react/no-array-index-key': 'warn',
     'react/jsx-curly-brace-presence': 'warn',
   },
-  ignorePatterns: [
-    'android/**',
-    'ios/**',
-    '.expo/**',
-    'coverage/**',
-    'node_modules/**',
-    'dist/**',
-  ],
+  ignorePatterns: ['android/**', 'ios/**', '.expo/**', 'coverage/**', 'node_modules/**', 'dist/**'],
 });

@@ -10,7 +10,9 @@ const DURATION = 600;
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
 
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   const splashKeyframe = new Keyframe({
     0: {
