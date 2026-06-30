@@ -22,11 +22,11 @@ const VARIANT_CONFIGS: Record<AppVariant, VariantConfig> = {
   },
 };
 
+/** Resolve the app configuration for the current environment variant. */
 const getVariantConfig = (): VariantConfig => {
   const variant = process.env.APP_VARIANT as AppVariant | undefined;
   return VARIANT_CONFIGS[variant ?? 'production'];
 };
-
 const variantConfig = getVariantConfig();
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -54,6 +54,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     predictiveBackGestureEnabled: false,
     package: variantConfig.bundleIdentifier,
+    googleServicesFile: './google-services.json',
   },
   web: {
     output: 'static',
