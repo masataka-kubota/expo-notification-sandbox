@@ -1,3 +1,20 @@
+type SendPushNotificationOptions = {
+  /**
+   * An expo-router path to navigate to when the user taps the notification.
+   * This is stored in `notification.request.content.data.url` and consumed
+   * by `addNotificationResponseReceivedListener`.
+   */
+  redirectUrl?: string;
+  /**
+   * The title of the push notification. Overrides the default "Original Title".
+   */
+  title?: string;
+  /**
+   * The body of the push notification. Overrides the default "And here is the body!".
+   */
+  body?: string;
+};
+
 /**
  * Sends a push notification to a specific device using the Expo Push API.
  *
@@ -13,11 +30,20 @@
  * @param onStatusUpdate - A callback invoked with status messages such as
  *   `"Sending notification..."`, `"Send succeeded: {...}"`, or
  *   `"Send failed: ..."`.
+ * @param options - Optional configuration for the notification.
+ * @param options.redirectUrl - An expo-router path (e.g. `"/redirect-success"`)
+ *   that the app will navigate to when the user taps the notification.
  *
  * @example
  * ```ts
+ * // Basic usage
  * sendPushNotification(expoPushToken, (msg) => {
  *   setStatusMessage(msg);
+ * });
+ *
+ * // With deep link redirect
+ * sendPushNotification(expoPushToken, setStatusMessage, {
+ *   redirectUrl: '/redirect-success',
  * });
  * ```
  *
@@ -26,6 +52,7 @@
 export const sendPushNotification = async (
   expoPushToken: string,
   onStatusUpdate: (message: string) => void,
+  options: SendPushNotificationOptions = {},
 ) => {
   if (!expoPushToken) {
     onStatusUpdate('Push token is not ready yet. Wait for registration to complete.');
@@ -37,9 +64,12 @@ export const sendPushNotification = async (
   const message = {
     to: expoPushToken,
     sound: 'default',
-    title: 'Original Title',
-    body: 'And here is the body!',
-    data: { someData: 'goes here' },
+    title: options.title ?? 'Original Title',
+    body: options.body ?? 'And here is the body!',
+    data: {
+      someData: 'goes here',
+      ...(options.redirectUrl ? { url: options.redirectUrl } : {}),
+    },
   };
 
   try {
