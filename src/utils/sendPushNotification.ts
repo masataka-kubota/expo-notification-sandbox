@@ -1,10 +1,4 @@
-type SendPushNotificationOptions = {
-  /**
-   * An expo-router path to navigate to when the user taps the notification.
-   * This is stored in `notification.request.content.data.url` and consumed
-   * by `addNotificationResponseReceivedListener`.
-   */
-  redirectUrl?: string;
+interface SendPushNotificationOptions {
   /**
    * The title of the push notification. Overrides the default "Original Title".
    */
@@ -13,7 +7,13 @@ type SendPushNotificationOptions = {
    * The body of the push notification. Overrides the default "And here is the body!".
    */
   body?: string;
-};
+  /**
+   * An expo-router path to navigate to when the user taps the notification.
+   * This is stored in `notification.request.content.data.url` and consumed
+   * by `addNotificationResponseReceivedListener`.
+   */
+  redirectUrl?: string;
+}
 
 /**
  * Sends a push notification to a specific device using the Expo Push API.
