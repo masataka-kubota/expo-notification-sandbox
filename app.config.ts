@@ -85,5 +85,4 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       projectId: 'a87e19b2-b67f-4950-bb78-950de030f659',
     },
   },
-  owner: 'packerman1212',
 });
