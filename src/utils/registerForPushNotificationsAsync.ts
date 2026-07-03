@@ -63,7 +63,8 @@ export const registerForPushNotificationsAsync = async () => {
       console.log(pushTokenString);
     }
     return pushTokenString;
-  } catch (e: unknown) {
-    handleRegistrationError(`${e}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    handleRegistrationError(message);
   }
 };

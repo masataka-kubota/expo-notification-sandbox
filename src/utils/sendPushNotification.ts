@@ -92,6 +92,7 @@ export const sendPushNotification = async (
 
     onStatusUpdate(`Send succeeded: ${responseBody}`);
   } catch (error: unknown) {
-    onStatusUpdate(`Send failed: ${error}`);
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    onStatusUpdate(`Send failed: ${message}`);
   }
 };
