@@ -46,7 +46,13 @@ export default function RootLayout() {
 
     // Step 5: Check if the app was launched from a notification (killed state)
     // (e.g. user tapped the notification when the app was not running)
-    const lastResponse = Notifications.getLastNotificationResponse();
+    const lastResponse = (() => {
+      try {
+        return Notifications.getLastNotificationResponse();
+      } catch {
+        return null;
+      }
+    })();
     if (lastResponse) {
       const redirectUrl = lastResponse.notification.request.content.data?.url as string | undefined;
       if (redirectUrl && pathnameRef.current !== redirectUrl) {
