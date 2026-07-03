@@ -3,6 +3,8 @@ import type { Href } from 'expo-router';
 import { router, Stack, usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
 
+import { validateRedirectUrl } from '@/utils/validateRedirectUrl';
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
@@ -37,10 +39,10 @@ export default function RootLayout() {
         response.actionIdentifier,
       );
 
-      const redirectUrl = response.notification.request.content.data?.url as string | undefined;
-      if (redirectUrl && pathnameRef.current !== redirectUrl) {
-        console.log('🔗 Notification tapped, redirecting to:', redirectUrl);
-        router.push(redirectUrl as Href);
+      const redirectPath = validateRedirectUrl(response.notification.request.content.data?.url);
+      if (redirectPath && pathnameRef.current !== redirectPath) {
+        console.log('🔗 Notification tapped, redirecting to:', redirectPath);
+        router.push(redirectPath as Href);
       }
     });
 
@@ -54,10 +56,10 @@ export default function RootLayout() {
       }
     })();
     if (lastResponse) {
-      const redirectUrl = lastResponse.notification.request.content.data?.url as string | undefined;
-      if (redirectUrl && pathnameRef.current !== redirectUrl) {
-        console.log('🔗 Launched from notification, redirecting to:', redirectUrl);
-        router.push(redirectUrl as Href);
+      const redirectPath = validateRedirectUrl(lastResponse.notification.request.content.data?.url);
+      if (redirectPath && pathnameRef.current !== redirectPath) {
+        console.log('🔗 Launched from notification, redirecting to:', redirectPath);
+        router.push(redirectPath as Href);
       }
     }
     return () => {
