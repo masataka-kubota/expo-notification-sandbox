@@ -8,6 +8,7 @@ repo_root="$(git rev-parse --show-toplevel)"
 
 # Only run on backend directory.
 if [ -n "$(git diff "$base_branch" "$current_branch")" ]; then
+  cd "$repo_root" || exit 1
   bun run type-check
   bun run lint
 fi
