@@ -1,98 +1,111 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Notifications from 'expo-notifications';
+import { useCallback, useEffect, useState } from 'react';
+import { Text, View, StyleSheet, Platform, Button } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
+import { schedulePushNotification } from '@/utils/schedulePushNotification';
+import { sendPushNotification } from '@/utils/sendPushNotification';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+export default function Index() {
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [notification, setNotification] = useState<Notifications.Notification | undefined>(
+    undefined,
   );
-}
 
-export default function HomeScreen() {
+  // NOTE: In a production app, push notification registration and listeners should be
+  // placed in `_layout.tsx` (root layout) so they persist across all routes.
+  // This useEffect is kept here only for debugging — the `setNotification` call
+  // displays received notification data in the UI for development purposes.
+  useEffect(() => {
+    // Step 1: Register for push notifications (permissions, channel, token)
+    registerForPushNotificationsAsync()
+      .then((token) => {
+        setExpoPushToken(token ?? '');
+        setStatusMessage(token ? 'Push token obtained.' : 'Push token is empty.');
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : `${error}`;
+        setExpoPushToken('');
+        setStatusMessage(message);
+      });
+
+    // Step 2: (Android only) Fetch existing notification channels for debugging
+    if (Platform.OS === 'android') {
+      Notifications.getNotificationChannelsAsync().then((value) => setChannels(value ?? []));
+    }
+
+    // Step 3: Listen for notifications received while the app is in the foreground
+    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+      console.log(
+        '📩 Notification received:',
+        notification.request.content.title,
+        notification.request.content.body,
+      );
+      setNotification(notification);
+    });
+
+    // Cleanup: remove both listeners when the component unmounts
+    return () => {
+      notificationListener.remove();
+    };
+  }, []);
+
+  /**
+   * Schedules a local push notification to be delivered after a 2-second delay.
+   */
+  const handleScheduleNotification = useCallback(async () => {
+    await schedulePushNotification();
+  }, []);
+
+  /**
+   * Sends a remote push notification to this device via the Expo Push API.
+   */
+  const handleSendNotification = useCallback(async () => {
+    await sendPushNotification(expoPushToken, setStatusMessage);
+  }, [expoPushToken, setStatusMessage]);
+
+  /**
+   * Sends a remote push notification with a deep link redirect to /redirect-success.
+   * Tapping the notification will navigate to that page.
+   */
+  const handleSendRedirectNotification = useCallback(async () => {
+    await sendPushNotification(expoPushToken, setStatusMessage, {
+      title: 'Redirect Notification',
+      body: 'Tap to navigate to the success page!',
+      redirectUrl: '/redirect-success',
+    });
+  }, [expoPushToken, setStatusMessage]);
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <View style={styles.container}>
+      <Text>Your expo push token: {expoPushToken}</Text>
+      <Text>Status: {statusMessage}</Text>
+      <Text>{`Channels: ${JSON.stringify(
+        channels.map((c) => c.id),
+        null,
+        2,
+      )}`}</Text>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Text>Title: {notification && notification.request.content.title} </Text>
+        <Text>Body: {notification && notification.request.content.body}</Text>
+        <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
+      </View>
+      <Button title="Press to schedule a notification" onPress={handleScheduleNotification} />
+      <Button title="Press to Send Notification" onPress={handleSendNotification} />
+      <Button
+        title="Press to Send Redirect Notification"
+        onPress={handleSendRedirectNotification}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
     alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+    justifyContent: 'space-around',
   },
 });
