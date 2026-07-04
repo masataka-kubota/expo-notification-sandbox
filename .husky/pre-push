@@ -1,14 +1,15 @@
 #!/usr/bin/env sh
+set -e
 
 . "$(dirname "$0")/lib/functions.sh"
 
-current_branch=$(git symbolic-ref --short HEAD)
-base_branch=$(get_base_branch)
+current_branch="$(git symbolic-ref --short HEAD)"
+base_branch="$(get_base_branch)"
 repo_root="$(git rev-parse --show-toplevel)"
 
-# Only run on backend directory.
+# Run checks only when there are changes relative to the base branch.
 if ! git diff --quiet "$base_branch" "$current_branch"; then
-  cd "$repo_root" || exit 1
+  cd "$repo_root"
   bun run type-check
   bun run lint
 fi
