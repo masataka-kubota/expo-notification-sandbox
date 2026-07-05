@@ -9,11 +9,11 @@ interface VariantConfig {
 
 const VARIANT_CONFIGS: Record<AppVariant, VariantConfig> = {
   development: {
-    appName: 'ExpoNotificationsSandbox (Dev)',
+    appName: '【DEV】ExpoNotificationsSandbox',
     bundleIdentifier: 'com.expo.notification.sandbox.dev',
   },
   preview: {
-    appName: 'ExpoNotificationsSandbox (Preview)',
+    appName: '【PREVIEW】ExpoNotificationsSandbox',
     bundleIdentifier: 'com.expo.notification.sandbox.preview',
   },
   production: {
