@@ -9,11 +9,11 @@ interface VariantConfig {
 
 const VARIANT_CONFIGS: Record<AppVariant, VariantConfig> = {
   development: {
-    appName: 'ExpoNotificationsSandbox (Dev)',
+    appName: '【Dev】ExpoNotificationsSandbox',
     bundleIdentifier: 'com.expo.notification.sandbox.dev',
   },
   preview: {
-    appName: 'ExpoNotificationsSandbox (Preview)',
+    appName: '【Preview】ExpoNotificationsSandbox',
     bundleIdentifier: 'com.expo.notification.sandbox.preview',
   },
   production: {
@@ -79,8 +79,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     reactCompiler: true,
   },
   extra: {
-    ...config.extra,
-    router: {},
     eas: {
       projectId: 'a87e19b2-b67f-4950-bb78-950de030f659',
     },
