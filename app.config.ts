@@ -23,10 +23,14 @@ const VARIANT_CONFIGS: Record<AppVariant, VariantConfig> = {
 };
 
 /** Resolve the app configuration for the current environment variant. */
-const getVariantConfig = (): VariantConfig => {
-  const variant = process.env.APP_VARIANT as AppVariant | undefined;
-  return VARIANT_CONFIGS[variant ?? 'production'];
+export const getVariantConfig = (): VariantConfig => {
+  const variant = process.env.APP_VARIANT;
+  if (variant && Object.prototype.hasOwnProperty.call(VARIANT_CONFIGS, variant)) {
+    return VARIANT_CONFIGS[variant as AppVariant];
+  }
+  return VARIANT_CONFIGS.production;
 };
+
 const variantConfig = getVariantConfig();
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
